@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  2-3 ⑨的完美文本编辑器 V2
+//  2-3 ⑨的完美文本编辑器
 //
 //  Created by Yan on 2022/3/16.
 //
@@ -73,9 +73,9 @@ public:
     {
         for (int i = 1; i < sum; i+=2) //（从首、末节点开始）由外而内，捉对地
         {
-            swap (left->data, right->data); //交换对称节点的数据项
-            left = left->succ;
-            right = right->pred;
+//            swap (left->data, right->data); //交换对称节点的数据项
+//            left = left->succ;
+//            right = right->pred;
         }
     }
     void show () //显示链表内所有节点
@@ -92,17 +92,22 @@ public:
 
 int main() {
     List list;
+    List list_rv;
     ListNode* pred = list.header;
+    ListNode* succ_ = list_rv.trailer;
     char text = getchar();
     int length = 0;
     while (text != '\n')
     {
         pred = list.insertR(pred, text);
+//        succ_ = list_rv.insertL(succ_, text);
         text = getchar();
         length++;
     }
     ListNode* cursorL = new ListNode(0, list.header, list.header->succ); //左光标
     ListNode* cursorR = new ListNode(0, list.trailer->pred, list.trailer); //右光标
+    ListNode* cursorL_ = new ListNode(0, list_rv.trailer->pred, list_rv.trailer); //逆左光标
+    ListNode* cursorR_ = new ListNode(0, list_rv.header, list_rv.header->succ); //逆右光标
     int curPosL = 0;
     int curPosR = length;
     int n;
@@ -122,6 +127,8 @@ int main() {
                     cout << "T" << endl;
                     cursorL->succ = cursorL->pred;
                     cursorL->pred = cursorL->pred->pred;
+//                    cursorL_->succ = cursorL->pred;
+//                    cursorL_->pred = cursorL->pred->pred;
                     curPosL--;
                 }
                 else

@@ -244,6 +244,11 @@ int main() {
                         cursorR->pred = list.removeL(cursorR->pred);
                         cursorR_->succ = list_rv.removeR(cursorR_->succ);
                     }
+                    if (cursorR->succ == cursorL->succ) //删除的cursorL右侧的结点恰好为cursorR右侧的结点
+                    {
+                        cursorR->succ = list.removeR(cursorR->succ);
+                        cursorR_->pred = list_rv.removeL(cursorR_->pred);
+                    }
                     cursorL->succ = list.removeR(cursorL->succ);
                     cursorL_->pred = list_rv.removeL(cursorL_->pred);
                     if (curPosR > curPosL)
@@ -261,6 +266,11 @@ int main() {
                     {
                         cursorL->pred = list.removeL(cursorL->pred);
                         cursorL_->succ = list_rv.removeR(cursorL_->succ);
+                    }
+                    if (cursorL->succ == cursorR->succ)
+                    {
+                        cursorL->succ = list.removeR(cursorL->succ);
+                        cursorL_->pred = list_rv.removeL(cursorL_->pred);
                     }
                     cursorR->succ = list.removeR(cursorR->succ);
                     cursorR_->pred = list_rv.removeL(cursorR_->pred);
@@ -304,8 +314,10 @@ int main() {
 //        {
 //            cout << "debug: L Pos: " << curPosL << endl;
 //            cout << "debug: R Pos: " << curPosR << endl;
-//            cout << "debug: L: " << cursorL->succ->data << endl;
-//            cout << "debug: R: " << cursorR->pred->data << endl;
+//            cout << "debug: L pred: " << cursorL->pred->data << endl;
+//            cout << "debug: L succ: " << cursorL->succ->data << endl;
+//            cout << "debug: R pred: " << cursorR->pred->data << endl;
+//            cout << "debug: R succ: " << cursorR->succ->data << endl;
 //        }
     }
     return 0;

@@ -74,13 +74,12 @@ public:
     };
     void move(int *pathDep, int *pathDes, int childPos, int pathDepLen, int pathDesLen) //子树移动方法
     {
-        //需要改源子树的根、子结点原/新的父/左/右结点的参数信息，同时更新高度与规模
+        //需要改源子树的根、根结点原/新的父/左/右结点的参数信息，同时更新高度与规模
         int depRoot = find(pathDep, pathDepLen); //寻找path内第0个项对应的孩子结点，此孩子结点为data为1的结点(根节点)的孩子结点
-        int desRoot = find(pathDes, pathDesLen); //更改原周围结点的参数(即从原位置中删除此子树)
         int probe = node[depRoot].leftBro; //记录原左/父结点信息，方便后续更新高度
         if (node[depRoot].leftBro == -1)
             probe = node[depRoot].parent;
-        updateSize(depRoot, desRoot); //更新子树规模
+        //更改原周围结点的参数(即从原位置中删除此子树)
         if (node[node[depRoot].parent].firstChild == depRoot) //改原父结点的fC
             node[node[depRoot].parent].firstChild = node[depRoot].rightBro;
         if (node[depRoot].leftBro != -1) //改原左兄弟结点的rB
@@ -94,6 +93,8 @@ public:
          新右兄弟结点：不存在 或 修改leftBro
          自己：修改parent & leftBro & rightBro
          */
+        int desRoot = find(pathDes, pathDesLen); //目的位置的节点表示为移除源子树后的节点表示!!!
+        updateSize(depRoot, desRoot); //更新子树规模，此时depRoot的parent还是原父结点
         node[depRoot].parent = desRoot;
         if (node[desRoot].firstChild == -1) //移到没有子结点的父节点，那么没有子结点的左右兄弟需要更改
         {
@@ -126,11 +127,11 @@ public:
             updateHeight(depRoot);
             return;
         }
-        node[cur].leftBro = depRoot;
+        node[depRoot].leftBro = node[cur].leftBro; //先对depRoot的leftBro赋值，否则cur的leftBro将改变
         node[depRoot].rightBro = cur;
-        node[depRoot].leftBro = node[cur].leftBro;
         if (childPos != 0) //移到最左时无需更改左兄弟的右兄弟
             node[node[cur].leftBro].rightBro = depRoot;
+        node[cur].leftBro = depRoot;
         updateHeight(probe); //更新子树新左/父结点高度③
         updateHeight(depRoot);
     };
@@ -172,6 +173,8 @@ public:
     int showHeight(int *path, int pathLen) //查询高度
     {
         int root = find(path, pathLen);
+        if (node[root].firstChild == -1)
+            return 0;
         return node[node[root].firstChild].height + 1; //自身的height是右下区域的最高height，fC的height+1才是自身实际的高度
     }
     int showSize(int *path, int pathLen) //查询子树规模
@@ -185,16 +188,19 @@ public:
         {
             /*
             cout << i << ":" << endl;
-            cout << "[height] " << node[i].height << endl;
+            if (node[i].firstChild == -1)
+                cout << "[height] " << 0 << endl;
+            else
+                cout << "[height] " << node[node[i].firstChild].height + 1 << endl;
             cout << "[size] " << node[i].size << endl;
             int cur = node[i].firstChild;
-            while(cur!=-1)
+            while(cur != -1)
             {
                 cout << cur << " ";
                 cur = node[cur].rightBro;
             }
             cout << endl;
-            */
+            //*/
         }
     }
 };

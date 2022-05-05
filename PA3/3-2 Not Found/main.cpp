@@ -14,6 +14,7 @@ class Bitmap //位图Bitmap类
 private:
     unsigned char *M; //比特图所存放的空间M[]，char为一个字节
     int N; //容量为N*sizeof(char)*8比特
+
 protected:
     void init(int n) //初始化
     {
@@ -37,14 +38,12 @@ public:
     void debug()
     {
         for (int i = 1; i <= 64; i++)
-        {
             if (test(i) == 1)
                 cout << i << " ";
-        }
         cout << endl;
     }
 };
-Bitmap bitmap(1 << 24); //开辟2^24空间
+Bitmap bitmap(1 << 25); //开辟2^22空间
 
 void resWrite(int num, int length) //余下的短串写入Bitmap
 {
@@ -61,28 +60,31 @@ int main()
     char curChar = '0';
     int num = 0;
     bool shortStr = false; //shortStr表征此串是否是长度不大于24的串
-    for (int i = 0; i < 24; i++)
+    for (int i = 0; i < 24; i++) //前24个字符
     {
         curChar = getchar(); //getchar读取出的是char型，若存在int变量里，则是ASCII码
         if (curChar == '\n')
         {
             shortStr = true;
             bitmap.set(num + (1 << i));
-            resWrite(num, i);
+            resWrite(num, i); //处理余串
             break;
         }
         num = (num << 1) + ((int)curChar - 48); //实际值与ASCII码差48
     }
-    if (shortStr == false)
+    if (shortStr == false) //24个字符以上的长串
     {
-        while (curChar != '\n')
+        while (true)
         {
-            num = (num % (1 << 23)) * (1 << 1) + ((int)curChar - 48);
-            bitmap.set(num);
+            bitmap.set(num + (1 << 24));
+            curChar = getchar();
+            if(curChar == '\n')
+                break;
+            num = (num % (1 << 23)) * (1 << 1) + ((int)curChar - 48); //往后错了一个字符，一直保持24个字符为一组
         }
-        resWrite(num, 24);
+        resWrite(num, 24); //最后24个字符，按照余串方式处理
     }
-    for (int i = 1; i < (1 << 24); i++)
+    for (int i = 1; i < (1 << 25); i++)
     {
         if (bitmap.test(i) == true)
         {
@@ -94,20 +96,18 @@ int main()
             }
         }
     }
-    for (int i = 1; i < (1 << 24); i++)
+    for (int i = 1; i < (1 << 25); i++)
     {
         if (bitmap.test(i) == false)
         {
             string str;
             int target = i;
-            int j = 0;
             while (target / 2 != 0)
             {
                 str += target % 2 + '0';
                 target /= 2;
-                j++;
             }
-            for (int k = str.size() - 1; k >= 0; k--)
+            for (int k = (int)str.size() - 1; k >= 0; k--)
                 cout << str[k];
             cout << endl;
             break;

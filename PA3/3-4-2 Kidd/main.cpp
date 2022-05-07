@@ -40,12 +40,30 @@ public:
     SegmentTree(){}; //构造函数
     void build(int left, int right, int num = 1) //建树
     {
-        node[num].realLeft = bigNode[left];
+        node[num].realLeft = min(bigNode[left - 1] + 1, bigNode[left]);
         node[num].realRight = bigNode[right];
-        if (left == right)
+        if (node[num].realLeft == node[num].realRight)
             return;
-        build(left, (right + left) / 2, num << 1); //递归构造，左孩子
-        build((right + left) / 2 + 1, right, (num << 1) + 1); //递归构造，右孩子
+        if (left == right)
+        {
+            node[num << 1].realLeft = node[num].realLeft;
+            node[num << 1].realRight = node[num].realRight - 1;
+            node[(num << 1) + 1].realLeft = node[num].realRight;
+            node[(num << 1) + 1].realRight = node[num].realRight;
+            return;
+        }
+        build(left, (left + right) / 2, num << 1); //递归构造，左孩子
+        build((left + right) / 2 + 1, right, (num << 1) + 1); //递归构造，右孩子
+    }
+    void pushDown(int num) //向下更新sum
+    {
+        int tmpLeft = num << 1; //左孩子
+        int tmpRight = (num << 1) + 1; //右孩子
+        node[tmpLeft].sum += node[num].lazyMark * (node[tmpLeft].realRight - node[tmpLeft].realLeft + 1); //更新左孩子sum
+        node[tmpRight].sum += node[num].lazyMark * (node[tmpRight].realRight - node[tmpRight].realLeft + 1); //更新右孩子sum
+        node[tmpLeft].lazyMark += node[num].lazyMark; //把懒惰标记继承给左孩子
+        node[tmpRight].lazyMark += node[num].lazyMark; //把懒惰标记继承给右孩子
+        node[num].lazyMark = 0;
     }
     void update(long long left, long long right, int num = 1) //更新sum（实际上更新lazyMark）
     {
@@ -54,7 +72,7 @@ public:
         if ((node[num].realLeft == left) && (node[num].realRight == right))
         {
             //满了，则更新sum
-            node[num].sum += max(node[num + 1].realLeft - node[num].realLeft, 1); //若无右结点则取1
+            node[num].sum += node[num].realRight - node[num].realLeft + 1;
             node[num].lazyMark += 1; //同时更新lazyMark
             return;
         }
@@ -65,16 +83,6 @@ public:
             pushDown(num);
             node[num].sum = node[num << 1].sum + node[(num << 1) + 1].sum;
         }
-    }
-    void pushDown(int num) //向下更新sum
-    {
-        int tmpLeft = num << 1;
-        int tmpRight = (num << 1) + 1;
-        node[tmpLeft].sum += node[num].lazyMark * max(node[tmpLeft + 1].realLeft - node[tmpLeft].realLeft, 1); //更新左孩子sum
-        node[tmpRight].sum += node[num].lazyMark * max(node[tmpRight + 1].realLeft - node[tmpRight].realLeft, 1); //更新右孩子sum
-        node[tmpLeft].lazyMark += node[num].lazyMark; //把懒惰标记继承给左孩子
-        node[tmpRight].lazyMark += node[num].lazyMark; //把懒惰标记继承给右孩子
-        node[num].lazyMark = 0;
     }
     int query(long long left, long long right, int num = 1)
     {
@@ -165,7 +173,7 @@ int main()
         if (opt == 'Q')
             optRec[i] = 1;
     }
-    quickSort(0, 2 * m); //将涉及到的断点排序（只有断点会被改变或询问）
+    quickSort(0, 2 * m); //将涉及到的断点排序（只有断点会被改变或询问）| 左闭右开
     int curBig = 1;
     int curSmall = 0;
     while (curSmall < 2 * m - 1)
@@ -178,6 +186,7 @@ int main()
     {
         bigNode[curBig++] = forSort[curSmall];
     }
+    bigNode[0] = bigNode[1] - 1;
     tree.build(1, curBig - 1); //建树
     for (int i = 0; i < m; i++)
     {

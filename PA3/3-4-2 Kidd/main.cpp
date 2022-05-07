@@ -54,10 +54,7 @@ public:
         if ((node[num].realLeft == left) && (node[num].realRight == right))
         {
             //满了，则更新sum
-            if (node[num + 1].realLeft != 0)
-                node[num].sum += node[num + 1].realLeft - node[num].realLeft; //有右结点的结点
-            else
-                node[num].sum += 1; //位于最后一行且无右结点的结点
+            node[num].sum += max(node[num + 1].realLeft - node[num].realLeft, 1); //若无右结点则取1
             node[num].lazyMark += 1; //同时更新lazyMark
             return;
         }
@@ -65,6 +62,7 @@ public:
         {
             update(left, min(right, node[num << 1].realRight), num << 1); //更新左孩子
             update(max(node[(num << 1) + 1].realLeft, left), right, (num << 1) + 1); //更新右孩子
+            pushDown(num);
             node[num].sum = node[num << 1].sum + node[(num << 1) + 1].sum;
         }
     }
@@ -72,8 +70,8 @@ public:
     {
         int tmpLeft = num << 1;
         int tmpRight = (num << 1) + 1;
-        node[tmpLeft].sum += node[num].lazyMark * (node[tmpLeft + 1].realLeft - node[tmpLeft].realLeft); //更新左孩子sum
-        node[tmpRight].sum += node[num].lazyMark * (node[tmpRight + 1].realLeft - node[tmpRight].realLeft); //更新右孩子sum
+        node[tmpLeft].sum += node[num].lazyMark * max(node[tmpLeft + 1].realLeft - node[tmpLeft].realLeft, 1); //更新左孩子sum
+        node[tmpRight].sum += node[num].lazyMark * max(node[tmpRight + 1].realLeft - node[tmpRight].realLeft, 1); //更新右孩子sum
         node[tmpLeft].lazyMark += node[num].lazyMark; //把懒惰标记继承给左孩子
         node[tmpRight].lazyMark += node[num].lazyMark; //把懒惰标记继承给右孩子
         node[num].lazyMark = 0;
@@ -91,6 +89,20 @@ public:
             return query(left, min(right, node[num << 1].realRight), num << 1) + query(max(node[(num << 1) + 1].realLeft, left), right, (num << 1) + 1); //查询左孩子和查询右孩子sum之和
         }
         return -1; //错误
+    }
+    void debug()
+    {
+        for (int i = 1; i < 18; i++)
+        {
+            int cur = i;
+            int sum = node[cur].sum;
+            while (cur != 1)
+            {
+                cur = cur >> 1;
+                sum += node[cur].lazyMark * max(node[i + 1].realLeft - node[i].realLeft, 1);
+            }
+            cout << i << ": " << sum << endl;
+        }
     }
 };
 
@@ -170,9 +182,15 @@ int main()
     for (int i = 0; i < m; i++)
     {
         if (optRec[i] == 0) //翻转操作
+        {
             tree.update(left[i], right[i]);
+            //tree.debug();
+        }
         if (optRec[i] == 1) //查询操作
+        {
             cout << tree.query(left[i], right[i]) << endl;
+            //tree.debug();
+        }
     }
     return 0;
 }

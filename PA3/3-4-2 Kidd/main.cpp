@@ -32,7 +32,7 @@ struct SegmentNode
     int sum;            //翻转次数
     int lazyMark;       //懒惰标记
     SegmentNode() : realLeft(0), realRight(0), sum(0), lazyMark(0){};
-} node[800005];
+} node[1600005];
 
 class SegmentTree
 {
@@ -156,7 +156,7 @@ void quickSort(int lo, int hi) // 0 <= lo < hi <= size
 int main()
 {
     SegmentTree tree; //建一棵segment tree
-    int n;           //扑克牌的数量
+    long long n;           //扑克牌的数量
     int m;           //操作个数
     cin >> n >> m;
     int optRec[m + 1];

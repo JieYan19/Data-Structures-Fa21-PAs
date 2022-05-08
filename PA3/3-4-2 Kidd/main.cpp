@@ -8,8 +8,8 @@
 #include <iostream>
 using namespace std;
 
-long long forSort[400002];
-long long bigNode[200001]; //合并后的大点，兼任将int转化为long long
+long long forSort[400002]; //用于存放排序点
+long long bigNode[400002]; //合并后的大点，兼任将int转化为long long
 
 long long max(long long a, long long b)
 {
@@ -29,7 +29,7 @@ struct SegmentNode
 {
     long long realLeft;  //实际左值
     long long realRight; //实际右值
-    int sum;            //翻转次数
+    long long sum;            //翻转次数
     int lazyMark;       //懒惰标记
     SegmentNode() : realLeft(0), realRight(0), sum(0), lazyMark(0){};
 } node[1600005];
@@ -84,7 +84,7 @@ public:
             node[num].sum = node[num << 1].sum + node[(num << 1) + 1].sum;
         }
     }
-    int query(long long left, long long right, int num = 1)
+    long long query(long long left, long long right, int num = 1)
     {
         if (left > right) //此孩子不在查询范围内
             return 0;
@@ -103,7 +103,7 @@ public:
         for (int i = 1; i < 18; i++)
         {
             int cur = i;
-            int sum = node[cur].sum;
+            long long sum = node[cur].sum;
             while (cur != 1)
             {
                 cur = cur >> 1;

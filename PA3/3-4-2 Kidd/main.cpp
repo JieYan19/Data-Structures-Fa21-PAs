@@ -6,6 +6,7 @@
 //
 
 #include <iostream>
+// #include <fstream>
 using namespace std;
 
 long long forSort[400002]; //用于存放排序点
@@ -27,12 +28,12 @@ long long min(long long a, long long b)
 
 struct SegmentNode
 {
-    long long realLeft;  //实际左值
-    long long realRight; //实际右值
-    long long sum;            //翻转次数
-    int lazyMark;       //懒惰标记
-    SegmentNode() : realLeft(0), realRight(0), sum(0), lazyMark(0){};
-} node[1600005];
+    long long left;  //实际左值
+    long long right; //实际右值
+    long long sum;   //翻转次数
+    int lazyMark;    //懒惰标记
+    SegmentNode() : left(0), right(0), sum(0), lazyMark(0){};
+} node[3200010];
 
 class SegmentTree
 {
@@ -40,16 +41,16 @@ public:
     SegmentTree(){}; //构造函数
     void build(int left, int right, int num = 1) //建树
     {
-        node[num].realLeft = min(bigNode[left - 1] + 1, bigNode[left]);
-        node[num].realRight = bigNode[right];
-        if (node[num].realLeft == node[num].realRight)
+        node[num].left = min(bigNode[left - 1] + 1, bigNode[left]);
+        node[num].right = bigNode[right];
+        if (node[num].left == node[num].right)
             return;
         if (left == right)
         {
-            node[num << 1].realLeft = node[num].realLeft;
-            node[num << 1].realRight = node[num].realRight - 1;
-            node[(num << 1) + 1].realLeft = node[num].realRight;
-            node[(num << 1) + 1].realRight = node[num].realRight;
+            node[num << 1].left = node[num].left;
+            node[num << 1].right = node[num].right - 1;
+            node[(num << 1) + 1].left = node[num].right;
+            node[(num << 1) + 1].right = node[num].right;
             return;
         }
         build(left, (left + right) / 2, num << 1); //递归构造，左孩子
@@ -59,8 +60,8 @@ public:
     {
         int tmpLeft = num << 1; //左孩子
         int tmpRight = (num << 1) + 1; //右孩子
-        node[tmpLeft].sum += node[num].lazyMark * (node[tmpLeft].realRight - node[tmpLeft].realLeft + 1); //更新左孩子sum
-        node[tmpRight].sum += node[num].lazyMark * (node[tmpRight].realRight - node[tmpRight].realLeft + 1); //更新右孩子sum
+        node[tmpLeft].sum += node[num].lazyMark * (node[tmpLeft].right - node[tmpLeft].left + 1); //更新左孩子sum
+        node[tmpRight].sum += node[num].lazyMark * (node[tmpRight].right - node[tmpRight].left + 1); //更新右孩子sum
         node[tmpLeft].lazyMark += node[num].lazyMark; //把懒惰标记继承给左孩子
         node[tmpRight].lazyMark += node[num].lazyMark; //把懒惰标记继承给右孩子
         node[num].lazyMark = 0;
@@ -69,17 +70,17 @@ public:
     {
         if (left > right) //此孩子不在翻转范围内
             return;
-        if ((node[num].realLeft == left) && (node[num].realRight == right))
+        if ((node[num].left == left) && (node[num].right == right))
         {
             //满了，则更新sum
-            node[num].sum += node[num].realRight - node[num].realLeft + 1;
+            node[num].sum += node[num].right - node[num].left + 1;
             node[num].lazyMark += 1; //同时更新lazyMark
             return;
         }
         else
         {
-            update(left, min(right, node[num << 1].realRight), num << 1); //更新左孩子
-            update(max(node[(num << 1) + 1].realLeft, left), right, (num << 1) + 1); //更新右孩子
+            update(left, min(right, node[num << 1].right), num << 1); //更新左孩子
+            update(max(node[(num << 1) + 1].left, left), right, (num << 1) + 1); //更新右孩子
             pushDown(num);
             node[num].sum = node[num << 1].sum + node[(num << 1) + 1].sum;
         }
@@ -88,13 +89,13 @@ public:
     {
         if (left > right) //此孩子不在查询范围内
             return 0;
-        if ((node[num].realLeft == left) && (node[num].realRight == right))
+        if ((node[num].left == left) && (node[num].right == right))
             return node[num].sum;
         else
         {
             if (node[num].lazyMark != 0)
                 pushDown(num);
-            return query(left, min(right, node[num << 1].realRight), num << 1) + query(max(node[(num << 1) + 1].realLeft, left), right, (num << 1) + 1); //查询左孩子和查询右孩子sum之和
+            return query(left, min(right, node[num << 1].right), num << 1) + query(max(node[(num << 1) + 1].left, left), right, (num << 1) + 1); //查询左孩子和查询右孩子sum之和
         }
         return -1; //错误
     }
@@ -107,7 +108,7 @@ public:
             while (cur != 1)
             {
                 cur = cur >> 1;
-                sum += node[cur].lazyMark * max(node[i + 1].realLeft - node[i].realLeft, 1);
+                sum += node[cur].lazyMark * max(node[i + 1].left - node[i].left, 1);
             }
             cout << i << ": " << sum << endl;
         }
@@ -155,6 +156,7 @@ void quickSort(int lo, int hi) // 0 <= lo < hi <= size
 
 int main()
 {
+    //ifstream in("test.txt");
     SegmentTree tree; //建一棵segment tree
     long long n;           //扑克牌的数量
     int m;           //操作个数

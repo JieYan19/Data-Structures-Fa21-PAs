@@ -6,6 +6,7 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include <cstring>
 #include <cmath>
 #include "crc32.h"
@@ -61,7 +62,7 @@ public:
             {
                 if (k == cur->key)
                     if (v == cur->value && n == cur->num)
-                        return; //不重复添加雷同词条，从ht[r]即开始判断
+                        return; //不重复添加雷同词条
                 if (cur->next == NULL)
                     break;
                 cur = cur->next;
@@ -176,32 +177,36 @@ void update(char head, int num)
 
 int main()
 {
+    fstream fin;
+    fstream fout;
+    fin.open("test.txt");
+    fout.open("test_mine.txt");
     int n; //密文个数
-    cin >> n;
-    cin >> salt;
+    fin >> n;
+    fin >> salt;
     saltLen = (int)strlen(salt); // strlen获取salt长度
     init();
     int success = 0;
     for (int i = 0; i < n; i++)
     {
         char cipher[9];
-        cin >> cipher; //输入十六进制密文
+        fin >> cipher; //输入十六进制密文
         int result = ht.get(sedici2Dieci(cipher, 8));
         switch (result)
         {
         case 0:
-            cout << "No" << endl;
+            fout << "No" << endl;
             break;
         case 1:
         {
             string str = dieci2Diciotto(ans->value, ans->num);
-            cout << str << endl;
+            fout << str << endl;
             update(str[0], success);
             success++;
             break;
         }
         case 2:
-            cout << "Duplicate" << endl;
+            fout << "Duplicate" << endl;
             break;
         }
     }

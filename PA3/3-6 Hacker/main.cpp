@@ -192,14 +192,8 @@ void update(char head, int num)
         curHead += num;
         if (num >= 6)
         {
-            ht.remove(headJoint[0].key, headJoint[0].value, 6);
             if (num >= 7)
             {
-                ht.remove(headJoint[1].key, headJoint[1].value, 7);
-                if (num >= 8)
-                {
-                    ht.remove(headJoint[2].key, headJoint[2].value, 8);
-                }
                 headJoint[2].crc = crc32(headJoint[1].crc, (unsigned char *)curHead, 1); //未加盐
                 headJoint[2].key = crc32(headJoint[2].crc, (unsigned char *)salt, saltLen);
                 headJoint[2].value = diciotto2Dieci(allHead, 8, num - 7);
